@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOA Prime+ · Belgische Energieprijzen</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,wght@0,700;0,900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:#081209;color:#e2f0e4;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+.header{background:linear-gradient(160deg,#091a0b,#0e2410);border-bottom:1px solid #1a3520;padding:20px 20px 16px;position:sticky;top:0;z-index:50}
+.hd{max-width:960px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.logo-icon{width:38px;height:38px;border-radius:10px;background:rgba(52,201,106,.13);border:1px solid rgba(52,201,106,.28);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.logo h1{font-size:16px;font-weight:700;color:#fff}
+.logo p{font-size:9.5px;color:#3a5c3e;letter-spacing:1.2px;text-transform:uppercase;margin-top:1px}
+.now-strip{border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.now-label{font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#4a7a52;margin-bottom:2px}
+.now-price{font-family:'Fraunces',serif;font-size:30px;font-weight:700;line-height:1}
+.now-kwh{font-size:10px;color:#3a5c3e;margin-top:2px}
+.now-pill{padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;white-space:nowrap}
+.now-hoa{font-size:11px;color:#3a5c3e;line-height:1.6}
+
+.main{max-width:960px;margin:0 auto;padding:16px 20px 56px}
+.status-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.badge{font-size:9.5px;color:#3a5c3e;padding:3px 10px;background:#0f1f13;border:1px solid #1d3a21;border-radius:100px;display:inline-flex;align-items:center;gap:4px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#34c96a}
+.dot-red{background:#ef4444}
+.dot-amber{background:#f59e0b;animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.refresh-btn{padding:4px 12px;border-radius:100px;border:1px solid #1d3a21;background:#0f1f13;color:#34c96a;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif}
+
+.stats{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.stat{background:#0f1f13;border:1px solid #1d3a21;border-radius:12px;padding:14px 16px;flex:1;min-width:110px}
+.stat-ico{font-size:16px;margin-bottom:4px}
+.stat-lbl{font-size:9px;color:#2a4a2e;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px}
+.stat-val{font-size:18px;font-weight:700;line-height:1}
+.stat-sub{font-size:9.5px;color:#1d3a21;margin-top:2px;line-height:1.4}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap}
+.tabs{display:flex;gap:4px}
+.tab{padding:7px 15px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid #1d3a21;background:#0f1f13;color:#4a7a52;transition:all .15s;font-family:'Outfit',sans-serif}
+.tab.on{background:#34c96a;color:#081209;border-color:#34c96a}
+.views{display:flex;gap:4px}
+.vbtn{padding:5px 12px;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#3a5c3e;border:1px solid #1d3a21;font-family:'Outfit',sans-serif}
+.vbtn.on{background:rgba(52,201,106,.12);color:#34c96a;border-color:rgba(52,201,106,.3)}
+
+.date-lbl{font-size:10.5px;color:#2a4a2e;margin-bottom:9px;text-transform:capitalize}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:11px}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:#2a4a2e}
+.leg-sq{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* CHART */
+.chart-box{background:#0a1a0c;border:1px solid #1d3a21;border-radius:12px;padding:16px 8px 8px}
+.chart-inner{position:relative;height:260px;display:flex;align-items:flex-end;gap:1px}
+.bc{flex:1;position:relative;height:100%}
+.bar-el{position:absolute;left:0;right:0;border-radius:3px 3px 0 0;cursor:crosshair}
+.bar-el:hover{filter:brightness(1.3)}
+.x-lbl{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);font-size:7.5px;color:#1a3520;white-space:nowrap}
+.ref-line{position:absolute;left:0;right:0;pointer-events:none}
+.chart-foot{display:flex;justify-content:center;gap:16px;margin-top:6px}
+.cf{font-size:9px;color:#1d3a21;display:flex;align-items:center;gap:3px}
+.cf-ln{width:16px;height:1.5px}
+
+/* LIST */
+.list-wrap{background:#0a1a0c;border:1px solid #1d3a21;border-radius:12px;padding:9px;display:flex;flex-direction:column;gap:2px}
+.row{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:7px;border:1px solid transparent}
+.row.is-now{border-color:rgba(52,201,106,.28);background:rgba(52,201,106,.05)}
+.row.is-neg{border-color:rgba(239,68,68,.18);background:rgba(239,68,68,.04)}
+.row.is-cheap{border-color:rgba(34,197,94,.12);background:rgba(34,197,94,.03)}
+.row-time{font-size:10.5px;color:#3a5c3e;width:44px;font-weight:500;flex-shrink:0}
+.row-time.now{color:#34c96a;font-weight:700}
+.row-bar{flex:1;height:4px;background:#1d3a21;border-radius:2px;overflow:hidden;max-width:80px}
+.row-bar-f{height:100%;border-radius:2px}
+.row-price{font-size:11.5px;font-weight:700;width:90px;text-align:right;flex-shrink:0}
+.row-zone{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0;min-width:100px;text-align:center}
+
+.info{background:rgba(52,201,106,.05);border:1px solid rgba(52,201,106,.12);border-radius:12px;padding:15px 18px;margin-top:16px}
+.info h3{color:#34c96a;font-size:12.5px;font-weight:700;margin-bottom:7px}
+.info-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.info-i{font-size:11px;color:#3a5c3e;line-height:1.75}
+.info-i strong{color:#6b9f74}
+
+.loader{height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0a1a0c;border:1px solid #1d3a21;border-radius:12px;gap:10px}
+.spin{width:26px;height:26px;border:2px solid #1d3a21;border-top-color:#34c96a;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{font-size:12px;color:#2a4a2e}
+
+.err{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:none}
+.err p{font-size:11px;color:#fca5a5;line-height:1.65}
+
+.tip{position:fixed;background:#0c1e0e;border:1px solid #1d3a21;border-radius:10px;padding:10px 14px;min-width:145px;box-shadow:0 8px 28px rgba(0,0,0,.55);pointer-events:none;z-index:200;display:none}
+.tip.show{display:block}
+.tip-t{font-size:10.5px;color:#4a7a52;font-weight:700;margin-bottom:3px}
+.tip-p{font-size:19px;font-weight:700;line-height:1}
+.tip-k{font-size:10px;color:#3a5c3e;margin-top:2px}
+.tip-z{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:6px}
+
+.foot-note{margin-top:12px;font-size:9px;color:#131f14;text-align:center;line-height:1.7}
+@media(max-width:560px){.info-g{grid-template-columns:1fr}.x-lbl{display:none}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="hd">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <h1>HOA Prime+ Dashboard</h1>
+        <p>Nordpool België · Officiële dag-ahead beursprijzen</p>
+      </div>
+    </div>
+    <div id="nowStrip" class="now-strip" style="display:none"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="status-bar">
+    <div class="badge"><span class="dot dot-amber" id="sDot"></span><span id="sTxt">Laden…</span></div>
+    <div class="badge" id="updB" style="display:none">📅 <span id="updT"></span></div>
+    <button class="refresh-btn" onclick="loadAll()">↺ Vernieuwen</button>
+  </div>
+
+  <div class="err" id="errBox"><p id="errMsg"></p></div>
+  <div class="stats" id="statsEl" style="display:none"></div>
+
+  <div class="topbar">
+    <div class="tabs">
+      <button class="tab on" id="tabT" onclick="setTab('today')">⚡ Vandaag</button>
+      <button class="tab" id="tabTm" onclick="setTab('tomorrow')">📅 Morgen</button>
+    </div>
+    <div class="views">
+      <button class="vbtn on" id="vC" onclick="setView('chart')">📊 Grafiek</button>
+      <button class="vbtn" id="vL" onclick="setView('list')">📋 Lijst</button>
+    </div>
+  </div>
+
+  <div class="date-lbl" id="dateLbl"></div>
+  <div class="legend">
+    <div class="leg"><div class="leg-sq" style="background:#ef4444"></div>Negatief = verdienen 💰</div>
+    <div class="leg"><div class="leg-sq" style="background:#22c55e"></div>&lt;€30/MWh slim</div>
+    <div class="leg"><div class="leg-sq" style="background:#84cc16"></div>&lt;€80/MWh voordelig</div>
+    <div class="leg"><div class="leg-sq" style="background:#f59e0b"></div>Normaal</div>
+    <div class="leg"><div class="leg-sq" style="background:#f97316"></div>Duur</div>
+  </div>
+
+  <div id="loaderEl" class="loader"><div class="spin"></div><div class="loader-txt">Prijsdata ophalen…</div></div>
+  <div id="chartBox" class="chart-box" style="display:none">
+    <div class="chart-inner" id="chartInner"></div>
+    <div class="chart-foot">
+      <div class="cf"><div class="cf-ln" style="background:rgba(239,68,68,.5)"></div>Nulgrens</div>
+      <div class="cf"><div class="cf-ln" style="background:rgba(34,197,94,.4)"></div>€30/MWh slim</div>
+    </div>
+  </div>
+  <div id="listBox" style="display:none"></div>
+
+  <div class="info" id="infoEl" style="display:none">
+    <h3>⚡ HOA Prime+ — slim verbruiken</h3>
+    <div class="info-g">
+      <div class="info-i"><strong>Normaal tarief:</strong> €0,24/kWh all-in<br><strong>Goedkope uren:</strong> beursprijs + vaste HOA-marge = veel lager<br><strong>Negatieve prijs:</strong> slimme omvormer schakelt in — u verdient</div>
+      <div class="info-i"><strong>Day-ahead:</strong> morgen ~ 13u gepubliceerd<br><strong>Slim plannen:</strong> wasmachine, laadpaal, vaatwasser<br><strong>Data:</strong> Nordpool officieel · België (BE) · via GitHub</div>
+    </div>
+  </div>
+  <div class="foot-note">Beursprijzen in €/MWh · excl. nettarieven, heffingen en BTW · Data: Nordpool BE · HOA Energy NV · Automatisch bijgewerkt</div>
+</div>
+
+<div class="tip" id="tip">
+  <div class="tip-t" id="tipT"></div>
+  <div class="tip-p" id="tipP"></div>
+  <div class="tip-k" id="tipK"></div>
+  <div class="tip-z" id="tipZ"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────
+// CONFIGURATIE
+// Vervang dit door uw eigen GitHub gebruikersnaam en repo naam
+// nadat u de bestanden heeft geüpload naar GitHub
+// ─────────────────────────────────────────────────────────
+const GITHUB_USER = "backoffice-ship-it";
+const GITHUB_REPO = "hoa-primeplus-dashboard";
+const BRANCH      = "main";
+
+function csvUrl(file) {
+  return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${BRANCH}/data/${file}`;
+}
+// ─────────────────────────────────────────────────────────
+
+const HOA = 0.24;
+let todayD=[], tmrwD=[];
+let activeTab="today", activeView="chart";
+const nowH=new Date().getHours(), nowM=new Date().getMinutes();
+
+function col(v){
+  if(v==null)return"#1d3a21";
+  if(v<0)return"#ef4444"; if(v<30)return"#22c55e";
+  if(v<80)return"#84cc16"; if(v<150)return"#f59e0b"; return"#f97316";
+}
+function zone(v){
+  if(v==null)return{l:"—",bg:"#0f1f13",fg:"#3a5c3e"};
+  if(v<0)return{l:"💰 Verdienen!",bg:"#fef2f2",fg:"#dc2626"};
+  if(v<30)return{l:"⚡ Slim verbruiken",bg:"#f0fdf4",fg:"#16a34a"};
+  if(v<80)return{l:"👍 Voordelig",bg:"#f7fee7",fg:"#65a30d"};
+  if(v<150)return{l:"Normaal",bg:"#fffbeb",fg:"#d97706"};
+  return{l:"⚠️ Duur",bg:"#fff7ed",fg:"#ea580c"};
+}
+
+// Parse CSV tekst naar array van objecten
+function parseCSV(text) {
+  const lines = text.trim().split("\n");
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",");
+  return lines.slice(1).map(line => {
+    const vals = line.split(",");
+    const obj = {};
+    headers.forEach((h, i) => obj[h.trim()] = vals[i]?.trim());
+    return {
+      hour:    parseInt(obj.uur   || obj.hour   || "0"),
+      minute:  parseInt(obj.kwartier || obj.minute || "0"),
+      label:   obj.tijd  || obj.time  || "00:00",
+      datum:   obj.datum || obj.date  || "",
+      eurMwh:  parseFloat(obj.eur_mwh || obj.price || "0"),
+    };
+  }).filter(r => !isNaN(r.eurMwh));
+}
+
+async function fetchCSV(file) {
+  const url = csvUrl(file) + "?t=" + Date.now(); // cache-bust
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`${file}: HTTP ${r.status}`);
+  return parseCSV(await r.text());
+}
+
+async function loadAll() {
+  setS("amber","Laden…"); showLoad();
+  try {
+    const [td, tm] = await Promise.all([
+      fetchCSV("today.csv"),
+      fetchCSV("tomorrow.csv").catch(() => []),
+    ]);
+    todayD  = td;
+    tmrwD   = tm;
+
+    if (!td.length) throw new Error("today.csv is leeg — wacht op eerste GitHub Actions run");
+
+    const datum = td[0]?.datum || "";
+    document.getElementById("updT").textContent = `Data: ${datum}`;
+    document.getElementById("updB").style.display = "inline-flex";
+    document.getElementById("tabTm").textContent =
+      tm.length ? "📅 Morgen (day-ahead)" : "📅 Morgen (na 13u beschikbaar)";
+
+    setS("green", `Live · ${td.length} kwartierslots`);
+    clearErr(); render();
+  } catch(e) {
+    setS("red", "Fout bij laden");
+    showErr(e.message);
+    hideLoad();
+  }
+}
+
+function setS(c,t){ document.getElementById("sDot").className=`dot dot-${c}`; document.getElementById("sTxt").textContent=t; }
+function showLoad(){
+  document.getElementById("loaderEl").style.display="flex";
+  ["chartBox","listBox","statsEl","infoEl"].forEach(id=>document.getElementById(id).style.display="none");
+  document.getElementById("nowStrip").style.display="none";
+}
+function hideLoad(){ document.getElementById("loaderEl").style.display="none"; }
+function clearErr(){ document.getElementById("errBox").style.display="none"; }
+function showErr(msg){ document.getElementById("errBox").style.display="block"; document.getElementById("errMsg").textContent="⚠️ "+msg; }
+
+function render(){
+  const data=activeTab==="today"?todayD:tmrwD, isT=activeTab==="today";
+  hideLoad();
+  document.getElementById("statsEl").style.display="flex";
+  document.getElementById("infoEl").style.display="block";
+  renderNow(isT); renderStats(data);
+  const d=isT?new Date():(() => {const x=new Date();x.setDate(x.getDate()+1);return x;})();
+  document.getElementById("dateLbl").textContent=d.toLocaleDateString("nl-BE",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  if(activeView==="chart"){
+    document.getElementById("chartBox").style.display="block";
+    document.getElementById("listBox").style.display="none";
+    renderChart(data,isT);
+  }else{
+    document.getElementById("chartBox").style.display="none";
+    document.getElementById("listBox").style.display="block";
+    renderList(data,isT);
+  }
+}
+
+function renderNow(isT){
+  const s=document.getElementById("nowStrip");
+  if(!isT||!todayD.length){s.style.display="none";return;}
+  const cur=todayD.find(d=>d.hour===nowH&&d.minute<=nowM&&d.minute+15>nowM)
+          ??todayD.find(d=>d.hour===nowH)??todayD[0];
+  if(!cur){s.style.display="none";return;}
+  const v=cur.eurMwh,z=zone(v);
+  s.style.display="flex";
+  s.style.background=v<0?"rgba(239,68,68,.08)":"rgba(52,201,106,.05)";
+  s.style.border=`1px solid ${v<0?"rgba(239,68,68,.22)":"rgba(52,201,106,.12)"}`;
+  s.innerHTML=`<div><div class="now-label">Nu · ${cur.label}</div>
+    <div class="now-price" style="color:${col(v)}">${v.toFixed(2)} <span style="font-size:14px;font-family:'Outfit',sans-serif;font-weight:400">€/MWh</span></div>
+    <div class="now-kwh">${(v/1000).toFixed(5)} €/kWh beursprijs</div></div>
+    <div style="flex:1"></div>
+    <div class="now-pill" style="background:${z.bg};color:${z.fg}">${z.l}</div>
+    <div class="now-hoa">HOA Prime+: <strong style="color:#34c96a">€${HOA.toFixed(2)}/kWh</strong><br>${v<0?"→ Omvormer actief!":v<30?"→ Slim moment!":"→ Normaal"}</div>`;
+}
+
+function renderStats(data){
+  const v=data.map(d=>d.eurMwh);
+  if(!v.length)return;
+  const mn=Math.min(...v),avg=v.reduce((a,b)=>a+b,0)/v.length;
+  const neg=v.filter(x=>x<0).length,cheap=v.filter(x=>x>=0&&x<30).length;
+  document.getElementById("statsEl").innerHTML=`
+    <div class="stat"><div class="stat-ico">📉</div><div class="stat-lbl">Laagste</div><div class="stat-val" style="color:${mn<0?"#ef4444":"#34c96a"}">${mn.toFixed(1)}<span style="font-size:11px"> €/MWh</span></div><div class="stat-sub">${mn<0?"Verdienen!":(mn/1000).toFixed(4)+" €/kWh"}</div></div>
+    <div class="stat"><div class="stat-ico">📊</div><div class="stat-lbl">Gemiddeld</div><div class="stat-val" style="color:#f59e0b">${avg.toFixed(1)}<span style="font-size:11px"> €/MWh</span></div><div class="stat-sub">Daggemiddelde BE</div></div>
+    <div class="stat"><div class="stat-ico">⚡</div><div class="stat-lbl">Slim verbruiken</div><div class="stat-val" style="color:#34c96a">${neg+cheap}<span style="font-size:11px"> slots</span></div><div class="stat-sub">${neg} negatief · ${cheap} goedkoop</div></div>
+    <div class="stat"><div class="stat-ico">🏷️</div><div class="stat-lbl">HOA cap</div><div class="stat-val" style="color:#84cc16">€${HOA.toFixed(2)}<span style="font-size:11px">/kWh</span></div><div class="stat-sub">All-in normaal</div></div>`;
+}
+
+function renderChart(data,isT){
+  const ci=document.getElementById("chartInner");
+  ci.innerHTML="";
+  if(!data.length){ci.innerHTML='<div style="width:100%;text-align:center;color:#2a4a2e;padding-top:110px;font-size:12px">Geen data beschikbaar</div>';return;}
+  const vals=data.map(d=>d.eurMwh);
+  const minV=Math.min(...vals),maxV=Math.max(...vals),range=(maxV-minV)||1;
+  const CH=240,zeroPx=20+(minV>=0?0:Math.abs(minV)/range*CH);
+
+  const zl=document.createElement("div");
+  zl.className="ref-line";
+  zl.style.cssText=`bottom:${zeroPx}px;height:1.5px;background:rgba(239,68,68,.45)`;
+  ci.appendChild(zl);
+  if(maxV>30){
+    const l30=document.createElement("div");
+    l30.className="ref-line";
+    l30.style.cssText=`bottom:${20+(Math.max(0,30-minV)/range)*CH}px;height:1px;background:rgba(34,197,94,.3)`;
+    ci.appendChild(l30);
+  }
+
+  data.forEach(d=>{
+    const w=document.createElement("div"); w.className="bc";
+    const bar=document.createElement("div"); bar.className="bar-el";
+    const hPx=Math.max(3,Math.abs(d.eurMwh)/range*CH);
+    const isNow=isT&&d.hour===nowH&&d.minute<=nowM&&d.minute+15>nowM;
+    bar.style.height=hPx+"px";
+    bar.style.background=col(d.eurMwh);
+    bar.style.opacity=isNow?"1":"0.8";
+    bar.style.bottom=d.eurMwh>=0?zeroPx+"px":(zeroPx-hPx)+"px";
+    if(d.eurMwh<0)bar.style.borderRadius="0 0 3px 3px";
+    if(isNow)bar.style.outline="2px solid #34c96a";
+    if(d.minute===0){
+      const lbl=document.createElement("div"); lbl.className="x-lbl";
+      lbl.textContent=String(d.hour).padStart(2,"0"); w.appendChild(lbl);
+    }
+    bar.addEventListener("mousemove",e=>showTip(e,d));
+    bar.addEventListener("mouseleave",hideTip);
+    w.appendChild(bar); ci.appendChild(w);
+  });
+}
+
+function renderList(data,isT){
+  const maxAbs=Math.max(...data.map(d=>Math.abs(d.eurMwh)),1);
+  document.getElementById("listBox").innerHTML=
+    `<div class="list-wrap">${data.map(d=>{
+      const isNow=isT&&d.hour===nowH&&d.minute<=nowM&&d.minute+15>nowM;
+      const z=zone(d.eurMwh);
+      return`<div class="row ${isNow?"is-now":d.eurMwh<0?"is-neg":d.eurMwh<30?"is-cheap":""}">
+        <span class="row-time ${isNow?"now":""}">${d.label}${isNow?" ◀":""}</span>
+        <div class="row-bar"><div class="row-bar-f" style="width:${Math.min(100,(Math.abs(d.eurMwh)/maxAbs)*100)}%;background:${col(d.eurMwh)}"></div></div>
+        <span class="row-price" style="color:${col(d.eurMwh)}">${d.eurMwh.toFixed(2)} €/MWh</span>
+        <span class="row-zone" style="background:${z.bg};color:${z.fg}">${z.l}</span>
+      </div>`;
+    }).join("")}</div>`;
+}
+
+const tip=document.getElementById("tip");
+function showTip(e,d){
+  const z=zone(d.eurMwh);
+  document.getElementById("tipT").textContent=d.label;
+  document.getElementById("tipP").textContent=`${d.eurMwh.toFixed(2)} €/MWh`;
+  document.getElementById("tipP").style.color=col(d.eurMwh);
+  document.getElementById("tipK").textContent=`${(d.eurMwh/1000).toFixed(5)} €/kWh`;
+  document.getElementById("tipZ").textContent=z.l;
+  document.getElementById("tipZ").style.background=z.bg;
+  document.getElementById("tipZ").style.color=z.fg;
+  tip.classList.add("show"); moveTip(e);
+}
+function moveTip(e){ let x=e.clientX+14,y=e.clientY-50; if(x+155>window.innerWidth)x=e.clientX-160; if(y+110>window.innerHeight)y=e.clientY-115; tip.style.left=x+"px"; tip.style.top=y+"px"; }
+function hideTip(){tip.classList.remove("show");}
+document.addEventListener("mousemove",e=>{if(tip.classList.contains("show"))moveTip(e);});
+function setTab(t){ activeTab=t; document.getElementById("tabT").classList.toggle("on",t==="today"); document.getElementById("tabTm").classList.toggle("on",t==="tomorrow"); if(todayD.length)render(); }
+function setView(v){ activeView=v; document.getElementById("vC").classList.toggle("on",v==="chart"); document.getElementById("vL").classList.toggle("on",v==="list"); if(todayD.length)render(); }
+
+loadAll();
+</script>
+</body>
+</html>
